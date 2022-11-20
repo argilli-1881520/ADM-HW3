@@ -14,10 +14,13 @@ import nltk
 import string
 from nltk.tokenize import word_tokenize
 from nltk.tokenize import RegexpTokenizer
+
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 nltk.download('stopwords')
 nltk.download('punkt')
+
+import plotly.express as plx
 
 
 def parallel_html_downloader(links:list,directory="downloads"):
@@ -233,6 +236,7 @@ def cosine_similarity(v1,v2):
 
 
 
+
 def query_function_v2(query, voc="vocabulary.json", reverse_index="reverse_index_v2.json", df_name="res.tsv"):
     df = pd.read_csv(df_name, delimiter = '\t')
     with open(reverse_index, "r") as f:
@@ -362,4 +366,13 @@ def query_function_v3_map(query, voc="vocabulary_q3.json", reverse_index="revers
     res = df.filter(items=list(docs), axis=0)
     res["Cosine similarity"] = res.index.map(lambda x: cosine_similarity(tfidf_vec,tfidf_docs[x] ))
     
-    return res.sort_values("Cosine similarity",ascending=False,kind="heapsort")
+    res = res.sort_values("Cosine similarity",ascending=False,kind="heapsort")
+
+    plot_map = plx.scatter_mapbox(res, lat = "placeAlt", lon = "placeLong",  width = 1000, opacity=1,  
+    height = 600, size="numPeopleVisited", color="placeName", zoom=2,
+    hover_name="placeName", hover_data = ["placeName", "placeAddress", "numPeopleVisited"])
+    plot_map.update_layout(mapbox_style="open-street-map") 
+    plot_map.show() 
+    
+    return
+
